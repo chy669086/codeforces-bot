@@ -4,8 +4,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 )
+
+// 获取题目列表
+func GetProblem(tag ...string) (*ProblemList, error) {
+	q := url.QueryEscape(strings.Join(tag, "&"))
+	resp, err := http.Get(ProblemUrl + "?tag=" + q)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("search query failed: %s", resp.Status)
+	}
+
+	var result ProblemList
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
 
 // 查询一个人的比赛记录
 func GetRantingChange(name string) (*RantingResultList, error) {

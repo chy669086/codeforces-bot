@@ -1,9 +1,13 @@
 package codeforeces
 
-const (
-	StatusUrl        = "https://codeforces.com/api/user.status"
-	ContestStatusUrl = "https://codeforces.com/api/contest.status"
-)
+type ProblemList struct {
+	Status string
+	Result Problems
+}
+
+type Problems struct {
+	Problems []*Problem
+}
 
 type ResultList struct {
 	Status string
@@ -45,4 +49,19 @@ type Author struct {
 
 type Members struct {
 	Handle string
+}
+
+type RantingResultList struct {
+	Status string
+	Result []*RantingResult
+}
+
+type RantingResult struct {
+	ContestId               int
+	ContestName             string
+	Handle                  string
+	Rank                    int
+	RatingUpdateTimeSeconds int64
+	OldRating               int
+	NewRating               int
 }
