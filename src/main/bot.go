@@ -1,6 +1,9 @@
 package main
 
 import (
+	"codeforces-bot/src/bind"
+	"codeforces-bot/src/duel"
+	"codeforces-bot/src/report"
 	"context"
 	"log"
 	"os"
@@ -21,6 +24,13 @@ type Config struct {
 	AppID uint64 `yaml:"appid"` //机器人的appid
 	Token string `yaml:"token"` //机器人的token
 }
+
+const (
+	HeartBeat = "/heartbeat"
+	Duel      = "/duel"
+	Bind      = "/bind"
+	Report    = "/report"
+)
 
 var config Config
 var api openapi.OpenAPI
@@ -47,10 +57,22 @@ func atMessageEventHandler(event *dto.WSPayload, data *dto.WSATMessageData) erro
 	res := message.ParseCommand(data.Content) //去掉@结构和清除前后空格
 	log.Println("cmd = " + res.Cmd + " content = " + res.Content)
 	cmd := res.Cmd
-	// content := res.Content
+	content := res.Content
+
 	switch cmd {
-	case "/heartbeat":
+	case HeartBeat:
 		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: "我的心脏还在跳动呢！"})
+	case Duel:
+		rp := duel.GetContent(content)
+		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: rp})
+	case Bind:
+		id := data.ChannelID
+		msg := bind.Exe(id, res.Content)
+		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: msg})
+	case Report:
+		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: report.GetReport(content, data.ChannelID)})
+	default:
+		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: "未开发的功能！"})
 	}
 	return nil
 }

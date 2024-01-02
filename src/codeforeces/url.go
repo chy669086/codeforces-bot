@@ -5,4 +5,5 @@ const (
 	ContestStatusUrl = "https://codeforces.com/api/contest.status"
 	RatingUrl        = "https://codeforces.com/api/user.rating"
 	ProblemUrl       = "https://codeforces.com/api/problemset.problems"
+	ProblemlistUrl   = "https://codeforces.com/problemset/problem"
 )

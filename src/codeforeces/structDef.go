@@ -34,7 +34,7 @@ type Problem struct {
 	Index     string
 	Name      string
 	Type      string
-	rating    int
+	Rating    int
 	Points    float64
 	Tags      []string
 }
