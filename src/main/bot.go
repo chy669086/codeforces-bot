@@ -66,11 +66,11 @@ func atMessageEventHandler(event *dto.WSPayload, data *dto.WSATMessageData) erro
 		rp := duel.GetContent(content)
 		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: rp})
 	case Bind:
-		id := data.ChannelID
+		id := data.Author.ID
 		msg := bind.Exe(id, res.Content)
 		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: msg})
 	case Report:
-		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: report.GetReport(content, data.ChannelID)})
+		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: report.GetReport(content, data.Author.ID)})
 	default:
 		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: "未开发的功能！"})
 	}
