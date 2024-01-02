@@ -63,7 +63,7 @@ func atMessageEventHandler(event *dto.WSPayload, data *dto.WSATMessageData) erro
 	case HeartBeat:
 		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: "我的心脏还在跳动呢！"})
 	case Duel:
-		rp := duel.GetContent(content)
+		rp := duel.GetContent(content, data.Author.ID)
 		api.PostMessage(ctx, data.ChannelID, &dto.MessageToCreate{MsgID: data.ID, Content: rp})
 	case Bind:
 		id := data.Author.ID

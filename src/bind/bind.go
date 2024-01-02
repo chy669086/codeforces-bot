@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 type UserList struct {
@@ -14,6 +15,8 @@ type UserList struct {
 type User struct {
 	Id      string
 	Account string
+	Point   int
+	Time    time.Time
 }
 
 func Exe(id, content string) string {
@@ -36,22 +39,26 @@ func Exe(id, content string) string {
 		if err := BindUser(id, cmd[1]); err != nil {
 			return err.Error()
 		}
-
 		return "绑定用户 " + cmd[1] + " 成功"
 	} else if cmd[0] == "check" {
-		return getUserName(id)
+		s := GetUserName(id)
+		if s != "" {
+			return "你绑定的账号是 " + s
+		} else {
+			return "你好像没有绑定账号"
+		}
 	}
 	return HELP
 }
 
-func getUserName(id string) string {
+func GetUserName(id string) string {
 	f, _ := GetUserList()
 	for _, user := range f.Users {
 		if user.Id == id {
-			return "你绑定的账号是 " + user.Account
+			return user.Account
 		}
 	}
-	return "你似乎没有绑定账号"
+	return ""
 }
 
 func DelUser(id string) error {
@@ -105,6 +112,8 @@ func AddUser(id, account string) error {
 	var tmp = User{
 		id,
 		account,
+		0,
+		time.Unix(0, 0),
 	}
 	f.Users = append(f.Users, &tmp)
 	fmt.Println(tmp)

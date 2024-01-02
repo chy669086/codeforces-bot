@@ -2,6 +2,7 @@ package duel
 
 import (
 	"bytes"
+	"codeforces-bot/src/bind"
 	"codeforces-bot/src/codeforeces"
 	"encoding/json"
 	"fmt"
@@ -13,6 +14,48 @@ import (
 	"time"
 )
 
+func add(id string, point int) int {
+	f, _ := bind.GetUserList()
+	for i := 0; i < len(f.Users); i++ {
+		if f.Users[i].Id == id && f.Users[i].Time.Day() != time.Now().Day() {
+			f.Users[i].Point += point
+			f.Users[i].Time = time.Now()
+			file, _ := os.Create("src/global/Users.json")
+			defer file.Close()
+			json.NewEncoder(file).Encode(f)
+			return f.Users[i].Point
+		}
+	}
+	return -1
+}
+
+func addPiont(id string) string {
+	s := bind.GetUserName(id)
+	if s == "" {
+		return "你没有绑定账号"
+	}
+	result, err := codeforeces.GetStatus(s)
+	if err != nil {
+		return err.Error()
+	}
+	_, problem := GetDailyProblem()
+	for _, x := range result.Result {
+		if x.Problem.Name == problem.Name && x.Verdict == "OK" {
+			p := add(id, problem.Rating)
+			if p != -1 {
+				return "你完成了今天的每日一题，获得 " + strconv.Itoa(problem.Rating) + "，现在你的总分是 " + strconv.Itoa(p)
+			} else {
+				return "你今天已经完成了每日一题！"
+			}
+		}
+		if time.Unix(x.CreationTimeSeconds, 0).Day() < time.Now().Day() {
+			break
+		}
+	}
+	return "你似乎没有完成题目"
+}
+
+// 根据tag找题目
 func GetProblem(rating string, tags []string) string {
 	var result struct {
 		Time     time.Time
@@ -131,7 +174,7 @@ func check() {
 }
 
 // 每日一题
-func GetDailyProblem() string {
+func GetDailyProblem() (string, *codeforeces.Problem) {
 	var result struct {
 		Time     time.Time
 		Problems []*codeforeces.Problem
@@ -141,16 +184,16 @@ func GetDailyProblem() string {
 
 	file, err := os.ReadFile("src/global/problem.json")
 	if err != nil {
-		return "获取题目列表失败，请重试"
+		return "获取题目列表失败，请重试", nil
 	}
 	err = json.Unmarshal(file, &result)
 	if err != nil {
-		return "获取题目列表失败，请重试"
+		return "获取题目列表失败，请重试", nil
 	}
 
 	var pro []*codeforeces.Problem
 	for _, x := range result.Problems {
-		if x.Rating != 0 {
+		if x.Rating != 0 && x.Rating < 1500 && x.Rating > 10000 {
 			pro = append(pro, x)
 		}
 	}
@@ -166,7 +209,7 @@ func GetDailyProblem() string {
 	day := dateF(time.Now())
 	problem := pro[int(day%int64(length))]
 	q := time.Now().Format("2006-01-02") + " 的每日一题是编号为 " + strconv.Itoa(problem.ContestId) + " 的比赛的 " + problem.Name + " 题，编号是 " + problem.Index
-	return q
+	return q, problem
 }
 
 // 取出当前的cf的题目列表
