@@ -48,6 +48,6 @@ func (r *report) String() string {
 		return "你" + r.date + "好像没有提交过题目"
 	}
 	var tmp bytes.Buffer
-	fmt.Fprintf(&tmp, "你%s提交了 %d 次，正确率为 %.2f，期中最难的题目是 %s，难度为 %d。", r.date, r.cnt, float64(r.passCnt)/float64(r.cnt), r.maxPro, r.max)
+	fmt.Fprintf(&tmp, "你%s提交了 %d 次，正确率为 %.2f，其中最难的题目是 %s，难度为 %d。", r.date, r.cnt, float64(r.passCnt)/float64(r.cnt), r.maxPro, r.max)
 	return tmp.String()
 }
