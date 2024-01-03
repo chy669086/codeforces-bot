@@ -63,13 +63,13 @@ func GetAssignReport(id, year, month string) string {
 		return x
 	}
 	for _, submit := range submits.Result {
-		if time.Unix(submit.CreationTimeSeconds, 0).Year() < toInt(year) ||
-			(time.Unix(submit.CreationTimeSeconds, 0).Year() == toInt(year) &&
-				toInt(tranInt[time.Unix(submit.CreationTimeSeconds, 0).Month().String()]) < toInt(month)) {
+		if time.Unix(submit.CreationTimeSeconds-5*3600, 0).Year() < toInt(year) ||
+			(time.Unix(submit.CreationTimeSeconds-5*3600, 0).Year() == toInt(year) &&
+				toInt(tranInt[time.Unix(submit.CreationTimeSeconds-5*3600, 0).Month().String()]) < toInt(month)) {
 			break
 		}
-		if time.Unix(submit.CreationTimeSeconds, 0).Year() == toInt(year) &&
-			toInt(tranInt[time.Unix(submit.CreationTimeSeconds, 0).Month().String()]) == toInt(month) {
+		if time.Unix(submit.CreationTimeSeconds-5*3600, 0).Year() == toInt(year) &&
+			toInt(tranInt[time.Unix(submit.CreationTimeSeconds-5*3600, 0).Month().String()]) == toInt(month) {
 			rep.cnt++
 			if submit.Verdict == "OK" {
 				rep.passCnt++
@@ -100,7 +100,7 @@ func GetMonthsReport(id string) string {
 	var rep report
 	rep.date = "在" + tran[time.Now().Month().String()]
 	for _, submit := range submits.Result {
-		if time.Unix(submit.CreationTimeSeconds, 0).Month() != time.Now().Month() {
+		if time.Unix(submit.CreationTimeSeconds-5*3600, 0).Month() != time.Now().Month() {
 			break
 		}
 		rep.cnt++

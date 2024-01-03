@@ -9,10 +9,39 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
+
+func checkPoint(id string) string {
+	f, err := bind.GetUserList()
+	if err != nil {
+		return "查找用户列表失败"
+	}
+	for _, u := range f.Users {
+		if u.Id == id {
+			return "你现在的分数是：" + strconv.Itoa(u.Point)
+		}
+	}
+	return "你似乎没有过绑定账号"
+}
+
+func getMax10() string {
+	f, err := bind.GetUserList()
+	if err != nil {
+		return "查找用户列表失败"
+	}
+	users := f.Users
+	sort.Slice(users, func(i, j int) bool { return users[i].Point > users[j].Point })
+	l := min(len(users), 10)
+	var res bytes.Buffer
+	for i := 0; i < l; i++ {
+		fmt.Fprintf(&res, "%s : %d\n", users[i].Account, users[i].Point)
+	}
+	return res.String()
+}
 
 func add(id string, point int) int {
 	f, _ := bind.GetUserList()
@@ -48,7 +77,7 @@ func addPiont(id string) string {
 				return "你今天已经完成了每日一题！"
 			}
 		}
-		if time.Unix(x.CreationTimeSeconds, 0).Day() < time.Now().Day() {
+		if time.Unix(x.CreationTimeSeconds-5*3600, 0).Day() < time.Now().Day() {
 			break
 		}
 	}
@@ -193,7 +222,7 @@ func GetDailyProblem() (string, *codeforeces.Problem) {
 
 	var pro []*codeforeces.Problem
 	for _, x := range result.Problems {
-		if x.Rating != 0 && x.Rating < 1500 && x.Rating > 10000 {
+		if x.Rating != 0 && x.Rating < 1500 && x.Rating > 1000 {
 			pro = append(pro, x)
 		}
 	}

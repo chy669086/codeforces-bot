@@ -1,6 +1,7 @@
 package bind
 
 import (
+	"codeforces-bot/src/codeforeces"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -63,25 +64,21 @@ func GetUserName(id string) string {
 
 func DelUser(id string) error {
 	f, _ := GetUserList()
-	var tmp []*User
 	var i int = -1
 	for j, user := range f.Users {
 		if user.Id == id {
 			i = j
-		} else {
-			tmp = append(tmp, user)
 		}
 	}
 	if i == -1 {
 		return fmt.Errorf("你似乎没有绑定账号！")
 	}
+	f.Users[i].Account = ""
 
 	file, _ := os.Create("src/global/Users.json")
 	defer file.Close()
 
-	json.NewEncoder(file).Encode(UserList{
-		Users: tmp,
-	})
+	json.NewEncoder(file).Encode(f)
 	return nil
 }
 
@@ -89,7 +86,10 @@ func BindUser(id, account string) error {
 	if checkUser(id) {
 		return fmt.Errorf("你已经绑定过账号了！")
 	}
-
+	f, err := codeforeces.GetStatus(account)
+	if err != nil || f.Status != "OK" {
+		return fmt.Errorf("绑定账号失败")
+	}
 	AddUser(id, account)
 	return nil
 }
@@ -98,7 +98,11 @@ func checkUser(id string) bool {
 	f, _ := GetUserList()
 	for _, user := range f.Users {
 		if user.Id == id {
-			return true
+			if user.Account != "" {
+				return true
+			} else {
+				return false
+			}
 		}
 	}
 	return false
@@ -109,14 +113,22 @@ func AddUser(id, account string) error {
 	if err != nil {
 		return err
 	}
-	var tmp = User{
-		id,
-		account,
-		0,
-		time.Unix(0, 0),
+	flag := false
+	for i := 0; i < len(f.Users); i++ {
+		if f.Users[i].Id == id {
+			f.Users[i].Account = account
+			flag = true
+		}
 	}
-	f.Users = append(f.Users, &tmp)
-	fmt.Println(tmp)
+	if !flag {
+		var tmp = User{
+			id,
+			account,
+			0,
+			time.Unix(0, 0),
+		}
+		f.Users = append(f.Users, &tmp)
+	}
 
 	file, err := os.OpenFile("src/global/Users.json", os.O_WRONLY, 0666)
 	if err != nil {
