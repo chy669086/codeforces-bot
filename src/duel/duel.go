@@ -37,6 +37,7 @@ func getMax10() string {
 	sort.Slice(users, func(i, j int) bool { return users[i].Point > users[j].Point })
 	l := min(len(users), 10)
 	var res bytes.Buffer
+	fmt.Fprintf(&res, "前 %d 名是：\n", l)
 	for i := 0; i < l; i++ {
 		fmt.Fprintf(&res, "%s : %d\n", users[i].Account, users[i].Point)
 	}
