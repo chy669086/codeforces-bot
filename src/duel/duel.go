@@ -156,7 +156,7 @@ func GetProblem(rating string, tags []string) string {
 			s = tag
 			f = false
 		}
-		for _, x := range result.Problems {
+		for _, x := range pro {
 			if contain(&x.Tags, &s) {
 				if !f {
 					p = append(p, x)
