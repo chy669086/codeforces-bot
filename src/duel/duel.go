@@ -123,7 +123,7 @@ func GetProblem(rating string, tags []string) string {
 			s = tags[i]
 		}
 		if !contain(&TAGS, &s) {
-			return tags[i] + " 不在 tag 里面，请检查"
+			return tags[i] + " 不是合法的 tag，请检查"
 		}
 	}
 
@@ -172,7 +172,7 @@ func GetProblem(rating string, tags []string) string {
 	}
 	var res bytes.Buffer
 	problem := pro[rand.Intn(len(pro))]
-	fmt.Fprintf(&res, "获取了题目是 %s，来自 %d 的 %s 题。", problem.Name, problem.ContestId, problem.Index)
+	fmt.Fprintf(&res, "获取了来自 %d 的 %s 题，题目是 %s。", problem.ContestId, problem.Index, problem.Name)
 	return res.String()
 }
 

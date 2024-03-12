@@ -1,8 +1,10 @@
 package report
 
 import (
+	"bytes"
 	"codeforces-bot/src/bind"
 	"codeforces-bot/src/codeforeces"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -17,6 +19,14 @@ func GetReport(content, id string) string {
 	}
 	if cmd[0] == "month" {
 		return GetMonthsReport(id)
+	}
+	if cmd[0] == "self" {
+		return GetContestReport(bind.GetUserName(id))
+	} else if cmd[0] == "account" {
+		if len(cmd) < 2 {
+			return HELP
+		}
+		return GetContestReport(cmd[1])
 	}
 	toInt := func(s string) int {
 		x := 0
@@ -37,6 +47,29 @@ func GetReport(content, id string) string {
 		}
 	}
 	return HELP
+}
+
+func GetContestReport(name string) string {
+
+	f, err := codeforeces.GetRantingChange(name)
+	if err != nil {
+		return err.Error()
+	}
+
+	var maxRating = 0
+	var maxContest string
+
+	for _, result := range f.Result {
+		if result.NewRating > maxRating {
+			maxRating = result.NewRating
+			maxContest = result.ContestName
+		}
+	}
+
+	var s bytes.Buffer
+
+	fmt.Fprintf(&s, "%s 参加了 %d 场比赛，在 %s 达到最高 rating %d。", name, len(f.Result), maxContest, maxRating)
+	return s.String()
 }
 
 func GetAssignReport(id, year, month string) string {
